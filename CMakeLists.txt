@@ -4,61 +4,37 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Os")
 
-# Initialise pico_sdk from installed location
-# (note this can come from environment, CMake cache etc)
-## Uncomment and set custom path if needed
-# set(PICO_SDK_PATH "$(set_path_here)/pico/pico-sdk")
-
-# Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(PocketGamer C CXX ASM)
+project(main C CXX ASM)
 
-# Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
-
-add_executable(PocketGamer 
-        PocketGamer.c
+add_executable(main
+        src/main.c
         src/interface/ili9341.c
         src/interface/ili9341_touchscreen.c
         src/gameshared.c
         src/gpu.c
         src/interface.c
         src/mainLoop.c
-        src/menu.c
-        src/textures.c
-        src/games/game01.c
-        src/games/game02.c
-        src/games/game03.c
-        src/games/game04.c
-        src/games/game05.c
-        src/games/game06.c
-        src/games/game07.c
-        src/games/game08.c
-        src/games/game09.c
         src/games/game10.c
-        src/games/game11.c
-        src/games/game12.c
-        src/games/game13.c
-        src/games/game14.c
         )
 
-pico_set_program_name(PocketGamer "PocketGamer")
-pico_set_program_version(PocketGamer "0.1")
+pico_set_program_name(main "PicoOnlinePainter")
+pico_set_program_version(main "1.0")
 
-pico_enable_stdio_uart(PocketGamer 0)
-pico_enable_stdio_usb(PocketGamer 1)
+pico_enable_stdio_uart(main 0)
+pico_enable_stdio_usb(main 0)
 
-# Add the standard library to the build
-target_link_libraries(PocketGamer pico_stdlib)
+target_link_libraries(main
+  pico_cyw43_arch_lwip_threadsafe_background
+  # pico_cyw43_arch_none
+  pico_stdlib
+  hardware_spi
+)
+target_include_directories(main PRIVATE ${CMAKE_CURRENT_LIST_DIR} )
 
-# Add any user requested libraries
-target_link_libraries(PocketGamer
-        hardware_spi
-        )
-
-pico_add_extra_outputs(PocketGamer)
-
+pico_add_extra_outputs(main)

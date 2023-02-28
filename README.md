@@ -1,26 +1,12 @@
-# Raspberry Pico Pocket Gamer
+# Raspberry Pico Wifi Painter
 
-A Raspberry Pico __RP2040__ and __ILI9341__ based pocket console.
+A Raspberry Pico __RP2040__ and __ILI9341__ based painter drawing live updates to and from any other online Pico.
 
-[Featured on MagPi Issue #122](https://magpi.raspberrypi.com/articles/pico-pocket-gamer)
-
-> Watch the video by clicking on the image
-
-[![Raspberry Pico Pocket Gamer Video](https://img.youtube.com/vi/271OoiJQUyk/0.jpg)](https://www.youtube.com/watch?v=271OoiJQUyk "Raspberry Pico Pocket Gamer Video")
-
+[Forked from this excellent Pocket Gaming project](https://github.com/GrgoMariani/Raspberry-Pico-Pocket-Gamer)
 
 ## Description
 
-Since the Pico came out I wanted to create a project for it that I can show my son to, so I decided to make him a Pocket Console. The game repertoire is quite basic and consists of fourteen different games.
-
-## Game list
-|              |             |            |
-|:------------:|:-----------:|:----------:|
-| TicTacToe 1P | Labirinth   | Snake      |
-| TicTacToe 2P | Connect4 1P | Calculator |
-| Lights Out   | Connect4 2P | Pong       |
-| Math         | 2048        | Breakout   |
-| Tetramino    | Paint.NOT   |            |
+The idea behind this project is to allow live collaborative drawing over the internet.
 
 ## Hardware
 Required components:
@@ -32,19 +18,20 @@ Required components:
 > * Printed __PCB__ (gerber available within `extras` folder of this repository)
 > * Button (switch) 6mm
 
-
 ## How to compile/run ?
 
-Steps are similar (same) as with any other C++ Pico SDK based project.
-
 ```bash
+cd pico-sdk
+git submodule update --init
+cd ..
 mkdir build
 cd build
 cmake ..
-make -j${nproc}
+export PICO_SDK_PATH=../../pico-sdk
+make
 ```
 
-After which you should be able to find `build/PocketGamer.uf2` file to upload to your Pico microcontroller.
+After which you should be able to find `build/pico-to-pico.uf2` file to upload to your Pico microcontroller.
 
 > __HINT__: In case you want to try the project without the Pico board `cd` into the `extras` folder and do a `make run`. I've adapted the interface and the main function to run on top of the olc's PixelGameEngine so you can try it directly from your Linux PC. Controls are `QWASD` and mouse click.
 
