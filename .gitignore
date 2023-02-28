@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+build
 extras/build/*
 extras/olcPixelGameEngine.h
 .vscode/*

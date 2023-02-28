@@ -64,61 +64,19 @@ static void MM_Init(void)
 
 static void MM_Update(void)
 {
-	KeyPressedEnum keyboard_held = Keyboard_GetHeldKeys();
-	KeyPressedEnum keyboard = Keyboard_GetPressedKeys();
-    if (keyboard == KEY_NONE)
-        return;
-    if (keyboard & KEY_UP)
-    {
-        memory->_choiceCurrent = memory->_choiceCurrent - 1;
-        if (memory->_choiceCurrent >= NO_OF_GAMES)
-        {
-            memory->_choiceCurrent = NO_OF_GAMES - 1;
-            memory->_choiceEnd = NO_OF_GAMES -1;
-            memory->_choiceStart = NO_OF_GAMES - memory->screenLines;
-            if ( memory->_choiceStart > memory->_choiceEnd)
-                memory->_choiceStart = 0;
-        }
-        else
-        {
-            if (memory->_choiceCurrent < memory->_choiceStart)
-            {
-                memory->_choiceStart--;
-                memory->_choiceEnd--;
-            }
-        }
-    }
-    if (keyboard & KEY_DOWN)
-    {
-        memory->_choiceCurrent = memory->_choiceCurrent + 1;
-        if (memory->_choiceCurrent >= NO_OF_GAMES)
-        {
-            memory->_choiceCurrent = 0;
-            memory->_choiceStart = 0;
-            memory->_choiceEnd = (memory->screenLines - 1) < (NO_OF_GAMES-1) ? (memory->screenLines - 1) : (NO_OF_GAMES -1);
-        }
-        else 
-        {
-            if (memory->_choiceCurrent > memory->_choiceEnd)
-            {
-                memory->_choiceStart++;
-                memory->_choiceEnd++;
-            }
-        }
-    }
-    if (keyboard & KEY_RIGHT)
-    {
-        const GameItem * selectedGame = &listOfGames[memory->_choiceCurrent];
-        if (selectedGame->callbacks)
-            SetupCallbacks(selectedGame->callbacks);
-    }
+  static int selected = 0;
+  if (selected == 0) {
+    selected++;
+    const GameItem * selectedGame = &listOfGames[9];
+    SetupCallbacks(selectedGame->callbacks);
+  }
 }
 
 
 static void MM_Draw(void)
 {
     GPU_ClearFramebuffers();
-    
+
     for ( uint8_t i=memory->_choiceStart; i<=memory->_choiceEnd; i++ )
     {
         int j = i - memory->_choiceStart;

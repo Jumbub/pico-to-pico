@@ -36,10 +36,10 @@ void DoMainLoop()
         IF_Keyboard();
         IF_Touchscreen();
         // Reset to main menu
-        if (Keyboard_GetHeldKeys() & KEY_MENU)
-        {
-            SetupCallbacks(&MM_Callbacks);
-        }
+        /* if (Keyboard_GetHeldKeys() & KEY_MENU) */
+        /* { */
+        /*     SetupCallbacks(&MM_Callbacks); */
+        /* } */
         // Do main loop logic
         if (_callbacks.updateCallback) (*_callbacks.updateCallback)();
         // Render screen at desired FPS
