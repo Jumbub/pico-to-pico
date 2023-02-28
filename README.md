@@ -52,10 +52,10 @@ After which you should be able to find `build/PocketGamer.uf2` file to upload to
 You should be able to find a compressed __gerber__ file with `extras` directory of the repository and order a new PCB online on which you can solder all the elements easily.
 
 ILI9341 to Pico pin connections looks like this:
- 
+
 ```
  ILI9341         Pico (RP2040)
- 
+
  T_IRQ  <-----> PIN 20
  T_DO   <-----> PIN 8
  T_DIN  <-----> PIN 11
@@ -72,53 +72,5 @@ ILI9341 to Pico pin connections looks like this:
  VCC    <-----> 3V3
 
 ```
- 
- Additionally keyboard switches are added to the following pins:
- 
-```
-                   Pico (RP2040)
- 
- KEY_MENU  <-----> PIN 0
- KEY_UP    <-----> PIN 15
- KEY_DOWN  <-----> PIN 27
- KEY_LEFT  <-----> PIN 28
- KEY_RIGHT <-----> PIN 14
-
-```
 
 In case you need to change them they are all defined within their own source files: `src/interface.c`, `src/interface/ili9341.c` and `src/interface/ili9341_touchscreen.c`.
-
-## Code explanation
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    A: DoMainLoop()
-    note left of A: Main loop description
-    state A {
-      GetInputs: Register keyboard and touch events
-      [*] --> GetInputs
-      GetInputs --> updateCallback
-      updateCallback --> drawCallback
-      drawCallback --> GetInputs
-    }
-    note left of B: SetupCallbacks(Callbacks* callbacks) changes your current game
-    B: SetupCallbacks(callbacks)
-    state B {
-      [*] --> deinitCallback
-      deinitCallback --> initCallback
-      initCallback --> [*]
-    }
-```
-
-```mermaid
-classDiagram
-    class Callbacks{
-        void * initCallback()
-        void * updateCallback()
-        void * drawCallback()
-        void * deinitCallback()
-    }
-```
-
-> Should I add more detailed info here?
