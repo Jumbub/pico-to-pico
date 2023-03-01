@@ -20,10 +20,16 @@
 #include "mqtt.c"
 
 #ifndef WIFI_SSID
-#define WIFI_SSID none
+#define WIFI_SSID "none"
 #endif
 #ifndef WIFI_PASSWORD
-#define WIFI_PASSWORD none
+#define WIFI_PASSWORD "none"
+#endif
+#ifndef MQTT_CLIENT
+#define MQTT_CLIENT "none"
+#endif
+#ifndef MQTT_TOPIC
+#define MQTT_TOPIC "none"
 #endif
 
 #define MQTT_SERVER_HOST "public.mqtthq.com"
@@ -108,7 +114,7 @@ err_t mqtt_test_publish(MQTT_CLIENT_T *state)
   u8_t qos = 0; /* 0 1 or 2, see MQTT specification */
   u8_t retain = 0;
   cyw43_arch_lwip_begin();
-  err = mqtt_publish(state->mqtt_client, "pico-to-pico", buffer, strlen(buffer), qos, retain, mqtt_pub_request_cb, state);
+  err = mqtt_publish(state->mqtt_client, MQTT_TOPIC, buffer, strlen(buffer), qos, retain, mqtt_pub_request_cb, state);
   cyw43_arch_lwip_end();
   if(err != ERR_OK) {
     fprintf(stdout, "Publish err: %d\n", err);
@@ -129,7 +135,7 @@ err_t mqtt_test_connect(MQTT_CLIENT_T *state) {
 
     memset(&ci, 0, sizeof(ci));
 
-    ci.client_id = "clientId-TJNIAbBzQ69";
+    ci.client_id = MQTT_CLIENT;
     ci.client_user = NULL;
     ci.client_pass = NULL;
     ci.keep_alive = 0;

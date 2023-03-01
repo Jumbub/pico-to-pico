@@ -23,19 +23,41 @@ Required components:
 ## How to compile/run ?
 
 ```bash
+git clone git@github.com:raspberrypi/pico-sdk.git
 cd pico-sdk
 git submodule update --init
-cd ..
+
+# modify ./lib/lwip/src/include/lwip/opt.h:509
+# FROM:      #define MEMP_NUM_SYS_TIMEOUT            LWIP_NUM_SYS_TIMEOUT_INTERNAL
+# TO:        #define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL+1)
+# until this issue is resolved: https://github.com/raspberrypi/pico-sdk/issues/1281
+
+git clone git@github.com:jumbub/pico-to-pico.git
+cd pico-to-pico
 mkdir build
 cd build
-cmake ..
-export PICO_SDK_PATH=../../pico-sdk
+PICO_SDK_PATH=../../pico-sdk cmake -DPICO_BOARD=pico_w -DWIFI_SSID="ssid" -DWIFI_PASSWORD="password" -DMQTT_CLIENT="picow-1234" -DMQTT_TOPIC="draw-app-1234" ..
 make
 ```
 
-After which you should be able to find `build/pico-to-pico.uf2` file to upload to your Pico microcontroller.
+### Debugging
 
-> __HINT__: In case you want to try the project without the Pico board `cd` into the `extras` folder and do a `make run`. I've adapted the interface and the main function to run on top of the olc's PixelGameEngine so you can try it directly from your Linux PC. Controls are `QWASD` and mouse click.
+```bash
+git clone https://github.com/raspberrypi/openocd.git
+./bootstrap
+./configure --enable-ftdi --enable-sysfsgpio --enable-bcm2835gpio
+src/openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s tcl -c "adapter speed 5000"
+```
+
+```bash
+gdb-multiarch main.elf
+target extended-remote :3333
+(gdb) load # loads application
+(gdb) monitor reset init # restart pico
+(gdb) continue # run
+```
+
+After which you should be able to find `build/pico-to-pico.uf2` file to upload to your Pico microcontroller.
 
 ## Pinout
 You should be able to find a compressed __gerber__ file with `extras` directory of the repository and order a new PCB online on which you can solder all the elements easily.
