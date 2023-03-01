@@ -1,3 +1,5 @@
+# WIP, NON FUNCTIONAL
+
 # Raspberry Pico Wifi Painter
 
 A Raspberry Pico __RP2040__ and __ILI9341__ based painter drawing live updates to and from any other online Pico.
