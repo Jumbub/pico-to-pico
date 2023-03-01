@@ -25,7 +25,6 @@ add_executable(main
         src/gpu.c
         src/interface.c
         src/mainLoop.c
-        src/games/game10.c
         )
 
 pico_set_program_name(main "PicoOnlinePainter")
