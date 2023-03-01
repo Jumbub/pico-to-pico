@@ -86,12 +86,49 @@ int run_dns_lookup(MQTT_CLIENT_T *state) {
     return 0;
 }
 
+static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
+{
+  printf("Incoming publish at topic %s with total length %u\n", topic, (unsigned int)tot_len);
+}
+
+static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
+{
+  printf("Incoming publish payload with length %d, flags %u\n", len, (unsigned int)flags);
+  cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+
+  if(flags & MQTT_DATA_FLAG_LAST) {
+    /* Last fragment of payload received (or whole part if payload fits receive buffer
+       See MQTT_VAR_HEADER_BUFFER_LEN)  */
+
+    /* Don't trust the publisher, check zero termination */
+    if(data[len-1] == 0) {
+      printf("mqtt_incoming_data_cb: %s\n", (const char *)data);
+    }
+  } else {
+    /* Handle fragmented payload, store in buffer, write to file or whatever */
+  }
+}
+
+static void mqtt_sub_request_cb(void *arg, err_t result)
+{
+  /* Just print the result code here for simplicity,
+     normal behaviour would be to take some action if subscribe fails like
+     notifying user, retry subscribe or disconnect from server */
+  printf("Subscribe result: %d\n", result);
+}
+
 static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     /* MQTT_CLIENT_T *state = (MQTT_CLIENT_T *)arg; */
     if (status != 0) {
         fprintf(stdout, "Error during connection: err %d.\n", status);
     } else {
         fprintf(stdout, "MQTT connected.\n");
+
+  /* Setup callback for incoming publish requests */
+      mqtt_set_inpub_callback(client, mqtt_incoming_publish_cb, mqtt_incoming_data_cb, arg);
+
+      /* Subscribe to a topic named "subtopic" with QoS level 1, call mqtt_sub_request_cb with result */
+      mqtt_subscribe(client, "subtopic", 1, mqtt_sub_request_cb, arg);
     }
 }
 
