@@ -17,8 +17,6 @@
 #include "interface.h"
 #include "mainLoop.h"
 
-#include "mqtt.c"
-
 #ifndef WIFI_SSID
 #define WIFI_SSID "none"
 #endif

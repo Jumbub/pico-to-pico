@@ -6,8 +6,6 @@
 
 Callbacks _callbacks = { 0, 0, 0, 0 };
 
-int breakGame = 0;
-
 void SetupCallbacks(const Callbacks * callbacksNew)
 {
     // Maybe a previous game needs to clear the heap
@@ -23,6 +21,7 @@ void ResetGame()
 }
 
 static uint32_t _lastDrawTime;
+static uint32_t _lastNetTime;
 
 void DoMainLoop()
 {
@@ -44,7 +43,10 @@ void DoMainLoop()
                 GPU_Render();
             }
         };
-        if (breakGame)
-            break;
+        uint32_t new_net_time = IF_GetCurrentTime();
+        if ( new_net_time - _lastNetTime > (ONE_SECOND*1) )
+        {
+            _lastNetTime = new_net_time;
+        }
     }
 }

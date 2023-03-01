@@ -4,6 +4,7 @@
 #include "../gpu.h"
 #include "../interface.h"
 #include "../gameshared.h"
+#include <stdint.h>
 
 GPU_Color _selected_color = 0;
 
@@ -11,13 +12,16 @@ GPU_Color _selected_color = 0;
 #define MAX_FRAMERATE 30
 #define TIME_PERIOD (ONE_SECOND/MAX_FRAMERATE)
 
-static uint32_t CalculateTick()
-{
-    return IF_GetCurrentTime()/(ONE_SECOND/NUM_TICKS);
-}
-
-
 static const GPU_Color _color_list[10] = {C_WHITE, C_BLACK, C_GRAY_LIGHT, C_BLUE, C_GRAY_DARK, C_RED, C_GRAY_MEDIUM, C_GREEN, C_C1, C_C2};
+
+#define MAX_DRAW_QUEUE 20
+int8_t drawQueueI = 0;
+struct Draw{
+  uint16_t x;
+  uint16_t y;
+  GPU_Color color;
+};
+struct Draw drawQueue[MAX_DRAW_QUEUE];
 
 static void G_Init(void)
 {
@@ -46,7 +50,14 @@ static void G_Update(void)
 		}
     	if (mainMemory.touch_X >= 26 && mainMemory.touch_X < 360 && mainMemory.touch_Y >= 0 && mainMemory.touch_Y < 240)
     	{
-    		GPU_DrawFilledCircle(_selected_color, mainMemory.touch_X, mainMemory.touch_Y, 3);
+        if (drawQueueI < MAX_DRAW_QUEUE) {
+          drawQueue[drawQueueI].x = mainMemory.touch_X;
+          drawQueue[drawQueueI].y = mainMemory.touch_Y;
+          drawQueue[drawQueueI].y = _selected_color;
+          drawQueueI++;
+
+          GPU_DrawFilledCircle(_selected_color, mainMemory.touch_X, mainMemory.touch_Y, 3);
+        }
     	}
     }
 }

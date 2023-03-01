@@ -14,6 +14,4 @@ void DoMainLoop();
 
 extern const Callbacks G10_Callbacks; // Paint.NOT
 
-extern int breakGame;
-
 #endif // MAIN_LOOP_H_

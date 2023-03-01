@@ -19,7 +19,6 @@ add_compile_options(-Wall
         )
 add_executable(main
         src/main.c
-        # src/mqtt.c
         src/interface/ili9341.c
         src/interface/ili9341_touchscreen.c
         src/gameshared.c
