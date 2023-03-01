@@ -31,16 +31,6 @@ void IF_DrawScreen(uint8_t * _framebuffer, size_t _framebufferSize)
 	ili9341_write_buffer(_framebuffer, _framebufferSize);
 }
 
-static uint32_t last_seed = 0xdeadb0d1;
-
-uint32_t IF_Random()
-{
-    uint32_t now = IF_GetCurrentTime();
-    uint32_t result = ((uint32_t)(142*now * now + 13*now + 203) >> 4)+last_seed;
-    last_seed = result;
-    return result;
-}
-
 uint8_t IF_Touchscreen()
 {
 	uint8_t result = ILI9341_T_TouchGetCoordinates(&mainMemory.touch_X, &mainMemory.touch_Y);

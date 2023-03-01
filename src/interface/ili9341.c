@@ -95,7 +95,7 @@ static inline void dc_deselect() {
 }
 
 static void inline send_byte(uint8_t data)
-{   
+{
     cs_select();
     dc_deselect();
     spi_write_blocking(SPI_PORT, &data, 1);
@@ -127,7 +127,7 @@ static void inline send_command(uint8_t command)
     cs_deselect();
 }
 
-void ili9341_init_display() 
+void ili9341_init_display()
 {
     cs_select();
 
@@ -151,7 +151,7 @@ void ili9341_init_display()
     send_byte(0x03);
     send_byte(0x12);
     send_byte(0x81);
-    
+
     send_command(0xE8);
     send_byte(0x85);
     send_byte(0x00);
@@ -173,7 +173,7 @@ void ili9341_init_display()
 
     send_command(0xC0);
     send_byte(0x23);
-    
+
     send_command(0xC1);
     send_byte(0x10);
 
