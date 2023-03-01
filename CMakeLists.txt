@@ -13,7 +13,8 @@ add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
-        -Os
+        # -Os
+        -g
         )
 add_executable(main
         src/main.c
@@ -30,16 +31,16 @@ add_executable(main
 pico_set_program_name(main "PicoOnlinePainter")
 pico_set_program_version(main "1.0")
 
-pico_enable_stdio_uart(main 0)
-pico_enable_stdio_usb(main 0)
+pico_enable_stdio_uart(main 1)
+pico_enable_stdio_usb(main 1)
 
 target_link_libraries(main
   pico_cyw43_arch_lwip_poll
-  # pico_cyw43_arch_none
   pico_stdlib
+  # pico_lwip_mbedtls
+  # pico_mbedtls
   pico_lwip_mqtt
   hardware_spi
-  # pico_lwip_iperf
 )
 target_include_directories(main PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
