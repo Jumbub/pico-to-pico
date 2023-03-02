@@ -24,6 +24,7 @@
 #define C_WHITE RGB(255, 255, 255)
 #define C_BLACK RGB(0, 0, 0)
 #define C_BLUE RGB(0, 0, 255)
+#define C_ORANGE RGB(255, 125, 0)
 #define C_YELLOW RGB(255, 255, 0)
 #define C_RED RGB(255, 0, 0)
 #define C_GREEN RGB(0, 255, 0)

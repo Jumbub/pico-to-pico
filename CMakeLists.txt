@@ -9,7 +9,7 @@ project(main C CXX ASM)
 pico_sdk_init()
 
 add_definitions(-DWIFI_SSID="${WIFI_SSID}" -DWIFI_PASSWORD="${WIFI_PASSWORD}")
-add_definitions(-DMQTT_CLIENT="${MQTT_CLIENT}" -DMQTT_TOPIC="${MQTT_TOPIC}")
+add_definitions(-DMQTT_CLIENT="${MQTT_CLIENT}" -DMQTT_TOPIC_IN="${MQTT_TOPIC_IN}" -DMQTT_TOPIC_OUT="${MQTT_TOPIC_OUT}")
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
