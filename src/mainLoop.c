@@ -42,7 +42,7 @@ struct Draw {
   uint8_t c; // color index
 };
 
-#define MAX_DRAW_QUEUE 30
+#define MAX_DRAW_QUEUE 50
 u8_t drawQueueI;
 struct Draw drawQueue[MAX_DRAW_QUEUE];
 
@@ -301,7 +301,7 @@ void DoMainLoop() {
     }
 
     uint32_t new_net_time = IF_GetCurrentTime();
-    if (new_net_time - _lastNetTime > (ONE_SECOND * 3) && drawQueueI > 0) {
+    if (new_net_time - _lastNetTime > (ONE_SECOND * 1.1) && drawQueueI > 0) {
       _lastNetTime = new_net_time;
 
       cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
@@ -310,8 +310,6 @@ void DoMainLoop() {
         cyw43_arch_lwip_begin();
         state->receiving = 1;
         if (mqtt_test_publish(state) == ERR_OK) {
-          fprintf(stdout, "published %d\n", state->counter);
-          sleep_ms(250);
           state->counter++;
         } // else ringbuffer is full and we need to wait for messages to flush.
         cyw43_arch_lwip_end();
