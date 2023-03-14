@@ -33,7 +33,7 @@
 #define C_GRAY_DARK RGB(64, 64, 64)
 #define C_C1 RGB(39, 153, 216)
 #define C_C2 RGB(216, 39, 153)
-#define C_C3 RGB(153, 216, 39)
+#define C_C3 RGB(255, 192, 203)
 
 void GPU_Init();
 void GPU_ClearFramebuffers();

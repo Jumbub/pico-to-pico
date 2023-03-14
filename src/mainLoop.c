@@ -27,11 +27,13 @@
 
 #define MQTT_SERVER_HOST "broker.hivemq.com"
 #define MQTT_SERVER_PORT 1883
+#define MQTT_QOS 0
 
+#define CLEAR 255
 
 static const GPU_Color _color_list[10] = {
-    C_BLACK, C_BLACK, C_GRAY_DARK, C_WHITE,
-    C_RED,  C_ORANGE, C_YELLOW, C_GREEN,      C_C1,   C_C2};
+    C_BLACK, C_GRAY_MEDIUM, C_WHITE,
+    C_RED,  C_ORANGE, C_YELLOW, C_GREEN, C_C1,   C_C2, C_C3};
 u8_t _selected_color_index;
 GPU_Color _selected_color;
 
@@ -39,12 +41,17 @@ GPU_Color _selected_color;
 struct Draw {
   uint8_t x; // half the screen size
   uint8_t y; // half the screen size
-  uint8_t c; // color index
 };
 
-#define MAX_DRAW_QUEUE 50
+#define MAX_DRAW_QUEUE 100
 u8_t drawQueueI;
 struct Draw drawQueue[MAX_DRAW_QUEUE];
+
+struct Packet {
+  uint8_t color;
+  uint8_t drawI;
+  struct Draw drawQueue[MAX_DRAW_QUEUE];
+};
 
 typedef struct MQTT_CLIENT_T_ {
     ip_addr_t remote_addr;
@@ -99,33 +106,36 @@ int run_dns_lookup(MQTT_CLIENT_T *state) {
     return 0;
 }
 
+struct Packet incoming = {0, 0, {}};
+uint totalConsumed = 0;
 static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
 {
   printf("Incoming publish at topic %s with total length %u\n", topic, (unsigned int)tot_len);
+  totalConsumed = 0;
 }
 
 static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
 {
   printf("Incoming publish payload with length %d, flags %u\n", len, (unsigned int)flags);
 
-  if(flags & MQTT_DATA_FLAG_LAST) {
-    /* Last fragment of payload received (or whole part if payload fits receive buffer
-       See MQTT_VAR_HEADER_BUFFER_LEN)  */
+  u8_t* buffer = &incoming.color;
+  for (uint i = 0; i < len; i++) {
+    if (i + totalConsumed >= sizeof(struct Packet))
+      break;
+    buffer[i + totalConsumed] = data[i];
+  }
+  totalConsumed += len;
 
-    /* Don't trust the publisher, check zero termination */
+  if(flags & MQTT_DATA_FLAG_LAST) {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-    for (int i = 0; i < len - sizeof(struct Draw);i+=sizeof(struct Draw) ) {
-      struct Draw* draw = (struct Draw*)&data[i];
-      if (draw->c == 0)
-        GPU_DrawFilledSquare(_color_list[draw->c], 20, 0, GPU_X-20, GPU_Y);
+    for (int i = 0; i < incoming.drawI; i++) {
+      const GPU_Color color = _color_list[(uint)incoming.color];
+      const struct Draw draw = incoming.drawQueue[i];
+      if (draw.x == CLEAR && draw.y == CLEAR)
+        GPU_DrawFilledSquare(_color_list[0], 20, 0, GPU_X-20, GPU_Y);
       else
-        GPU_DrawFilledCircle(_color_list[draw->c], ((int16_t)draw->x) * 2, ((int16_t)draw->y) * 2, 3);
+        GPU_DrawFilledCircle(color, ((uint16_t)draw.x) * 2, ((uint16_t)draw.y) * 2, incoming.color == 0 ? 15 : 4);
     }
-    if(data[len-1] == 0) {
-      printf("mqtt_incoming_data_cb: %s\n", (const char *)data);
-    }
-  } else {
-    /* Handle fragmented payload, store in buffer, write to file or whatever */
   }
 }
 
@@ -161,15 +171,24 @@ void mqtt_pub_request_cb(void *arg, err_t err) {
 
 err_t mqtt_test_publish(MQTT_CLIENT_T *state)
 {
-  /* char buffer[128]; */
-
-  /* sprintf(buffer, "%hd:%hd,%hd:%hd [%d/%d]", drawQueueI, drawQueue[0].x, drawQueue[0].y, state->received, state->counter); */
+  struct Packet packet;
+  packet.color = _selected_color_index;
+  packet.drawI = drawQueueI;
+  for (uint i =0; i < MAX_DRAW_QUEUE; i++) {
+    if (i < drawQueueI) {
+      packet.drawQueue[i].x = drawQueue[i].x;
+      packet.drawQueue[i].y = drawQueue[i].y;
+    } else {
+      packet.drawQueue[i].x = 0;
+      packet.drawQueue[i].y = 0;
+    }
+  }
 
   err_t err;
-  u8_t qos = 0; /* 0 1 or 2, see MQTT specification */
+  u8_t qos = MQTT_QOS; /* 0 1 or 2, see MQTT specification */
   u8_t retain = 0;
   cyw43_arch_lwip_begin();
-  err = mqtt_publish(state->mqtt_client, MQTT_TOPIC_OUT, drawQueue, sizeof(struct Draw) * drawQueueI, qos, retain, mqtt_pub_request_cb, state);
+  err = mqtt_publish(state->mqtt_client, MQTT_TOPIC_OUT, &packet, sizeof(packet), qos, retain, mqtt_pub_request_cb, state);
   cyw43_arch_lwip_end();
   if(err != ERR_OK) {
     fprintf(stdout, "Publish err: %d\n", err);
@@ -234,9 +253,8 @@ void DoMainLoop() {
   lastX = 0;
   lastY = 0;
   // Start queue with initial reset signal
-  drawQueue[0].x = 0;
-  drawQueue[0].y = 0;
-  drawQueue[0].c = 0;
+  drawQueue[0].x = CLEAR;
+  drawQueue[0].y = CLEAR;
   drawQueueI = 1;
 
   mainMemory._lastRenderedTime = 0;
@@ -273,16 +291,12 @@ void DoMainLoop() {
         if (drawQueueI < MAX_DRAW_QUEUE) {
           drawQueue[drawQueueI].x = mainMemory.touch_X / 2;
           drawQueue[drawQueueI].y = mainMemory.touch_Y / 2;
-          drawQueue[drawQueueI].c = _selected_color_index;
           drawQueueI++;
 
           lastX = mainMemory.touch_X;
           lastY = mainMemory.touch_Y;
 
-          if (_selected_color_index == 0)
-            GPU_DrawFilledSquare(_color_list[0], 20, 0, GPU_X-20, GPU_Y);
-          else
-            GPU_DrawFilledCircle(_selected_color, mainMemory.touch_X, mainMemory.touch_Y, 3);
+          GPU_DrawFilledCircle(_selected_color, mainMemory.touch_X, mainMemory.touch_Y, _selected_color_index == 0 ? 15 : 4);
         }
       }
     }
@@ -301,7 +315,7 @@ void DoMainLoop() {
     }
 
     uint32_t new_net_time = IF_GetCurrentTime();
-    if (new_net_time - _lastNetTime > (ONE_SECOND * 1.1) && drawQueueI > 0) {
+    if (new_net_time - _lastNetTime > (ONE_SECOND * 2) && drawQueueI > 0) {
       _lastNetTime = new_net_time;
 
       cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
