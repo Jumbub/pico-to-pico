@@ -2,11 +2,14 @@
 
 A Raspberry Pico __RP2040__ and __ILI9341__ based painter drawing live updates to and from any other online Pico.
 
-[Forked from this excellent Pocket Gaming project](https://github.com/GrgoMariani/Raspberry-Pico-Pocket-Gamer)
+Forked from [this excellent Pocket Gaming project](https://github.com/GrgoMariani/Raspberry-Pico-Pocket-Gamer)
 
-## Description
+Case printed from [this Printables model](https://www.printables.com/model/147389-case-for-esp8266-nodemcu-12-e-with-ili9341-28-scre)
 
-The idea behind this project is to allow live collaborative drawing over the internet.
+Short demo [video](https://photos.app.goo.gl/JW611p4d572n7nzj9)
+
+![PXL_20230326_122822473](https://user-images.githubusercontent.com/8686526/227824570-4a2a6dbd-091f-4ba6-8d2d-0f6340522fc9.jpg)
+![PXL_20230326_041922028 (1)](https://user-images.githubusercontent.com/8686526/227824564-06d9fc75-5f30-4705-a48a-7ff66ec215b8.jpg)
 
 ## Hardware
 Required components:
