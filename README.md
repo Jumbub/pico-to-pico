@@ -13,13 +13,8 @@ Short demo [video](https://photos.app.goo.gl/JW611p4d572n7nzj9)
 
 ## Hardware
 Required components:
-* Raspberry Pico (__RP2040__)
-* __ILI9341__ controller with __XPT2046__ touch module (I am using 3.2'' version)
-* five switches (preferably mechanical switches)
-
-> Optional components:
-> * Printed __PCB__ (gerber available within `extras` folder of this repository)
-> * Button (switch) 6mm
+* Raspberry Pico W (__RP2040__)
+* __ILI9341__ controller with __XPT2046__ touch module (any size at or below 510x510 pixel resolution)
 
 ## How to compile/run ?
 
